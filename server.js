@@ -2,6 +2,7 @@ const express= require('express');
 const dotenv = require('dotenv')
 const colors= require('colors');
 const morgan= require('morgan');
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const connectDB = require('./config/db');
 
@@ -13,6 +14,7 @@ connectDB();
 const app = express();
 // middlewares
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 //routes

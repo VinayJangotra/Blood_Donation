@@ -7,74 +7,100 @@ const jwtSecret = process.env.JWT_SECRET || "12345678";
 
 const registerController = async (req, res) => {
   try {
-    const existingUser = await userModels.findOne({ email: req.body.email });
-    if (existingUser) {
-      return res.status(200).json({
+    const exisitingUser = await userModels.findOne({ email: req.body.email });
+    //validation
+    if (exisitingUser) {
+      return res.status(200).send({
         success: false,
-        message: "User already exists",
+        message: "User ALready exists",
       });
     }
-    // hash the password
+    //hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     req.body.password = hashedPassword;
-    console.log("req.body before saving:", req.body); // Debug log
+    //rest data
     const user = new userModels(req.body);
-    console.log("user object before saving:", user); // Debug log
     await user.save();
-    res.status(201).json({
+    return res.status(201).send({
       success: true,
-      message: "User created successfully",
+      message: "User Registerd Successfully",
       user,
     });
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    res.status(500).json({
+    console.log(error);
+    res.status(500).send({
       success: false,
-      message: error.message,
+      message: "Error In Register API",
       error,
     });
   }
 };
+
+//login call back
 const loginController = async (req, res) => {
   try {
     const user = await userModels.findOne({ email: req.body.email });
-    console.log(user); // Log the user document
     if (!user) {
-      return res.status(404).json({
+      return res.status(404).send({
         success: false,
-        message: "User not found",
+        message: "Invalid Credentials",
       });
     }
+    //check role
+    if (user.role !== req.body.role) {
+      return res.status(500).send({
+        success: false,
+        message: "role dosent match",
+      });
+    }
+    //compare password
     const comparePassword = await bcrypt.compare(
       req.body.password,
       user.password
     );
     if (!comparePassword) {
-      return res.status(400).json({
+      return res.status(500).send({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid Credentials",
       });
     }
-
-    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.status(200).json({
+    return res.status(200).send({
       success: true,
-      message: "User logged in successfully",
+      message: "Login Successfully",
       token,
       user,
     });
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    res.status(500).json({
+    console.log(error);
+    res.status(500).send({
       success: false,
-      message: error.message,
+      message: "Error In Login API",
       error,
     });
   }
-
 };
 
-module.exports = { registerController, loginController };
+//GET CURRENT USER
+const currentUserController = async (req, res) => {
+  try {
+    const user = await userModels.findOne({ _id: req.body.userId });
+    return res.status(200).send({
+      success: true,
+      message: "User Fetched Successfully",
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "unable to get current user",
+      error,
+    });
+  }
+};
+
+module.exports = { registerController, loginController, currentUserController };
