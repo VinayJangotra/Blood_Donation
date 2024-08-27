@@ -41,5 +41,22 @@ try {
     
 }
 }
-
-module.exports = {createInventoryController};
+// Get all the  blood records
+const getInventoryController = async (req,res)=>{
+    try {
+        const inventory = await inventoryModel.find({organisation:req.body.userId}).populate('donar').populate('hospital').sort({createdAt: -1});
+        res.status(200).json({
+            success:true,
+            message:"All Blood records",
+            inventory
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success:false,
+            message:"Server Error",
+            error
+        });
+    }
+}
+module.exports = {createInventoryController,getInventoryController};
