@@ -3,3 +3,14 @@
   padding:0;
   box-sizing: border-box;
 }
+/* form Styling */
+.form-banner img{
+  width:100%;
+  height:100%;
+}
+.form-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
