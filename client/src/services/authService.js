@@ -1,42 +1,46 @@
-export const handleLogin =(e,email,password,role)=>{
-    e.preventDefault();
-    try{
-      console.log("login",e,email, password, role);
+import { userLogin, userRegister } from "../redux/features/auth/authActions";
+import store from "../redux/store";
 
+export const handleLogin = (e, email, password, role) => {
+  e.preventDefault();
+  try {
+    if (!role || !email || !password) {
+      return alert("Please Privde All Feilds");
     }
-    catch(error){
-        console.log(error);
-    }
+    store.dispatch(userLogin({ email, password, role }));
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const handleRegister = (
   e,
   name,
-  email,
   role,
+  email,
   password,
+  phone,
   organisationName,
-  hospitalName,
-  website,
   address,
-  phone
+  hospitalName,
+  website
 ) => {
-    e.preventDefault();
-    try {
-        console.log(
-        "register",
-        e,
+  e.preventDefault();
+  try {
+    store.dispatch(
+      userRegister({
         name,
-        email,
         role,
+        email,
         password,
+        phone,
         organisationName,
+        address,
         hospitalName,
         website,
-        address,
-        phone
-        );
-    } catch (error) {
-        console.log(error);
-    }
+      })
+    );
+  } catch (error) {
+    console.log(error);
+  }
 };
